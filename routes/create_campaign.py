@@ -22,50 +22,36 @@ class CampaignCreate(BaseModel):
     requested_leads: int
     status: str
 
-
 @router.post("/campaigns/{user_id}")
 def create_campaign(user_id: str, payload: CampaignCreate):
     try:
         supabase = get_supabase()
 
-        # 1️⃣ Generate campaign ID
-        campaign_id = str(uuid.uuid4())
-
-        # 2️⃣ Prepare campaign data from user
+        # 1️⃣ Prepare campaign data from user
         campaign_data = payload.dict()
-        campaign_data["id"] = campaign_id
         campaign_data["user_id"] = user_id
         campaign_data["created_at"] = datetime.utcnow().isoformat()
 
-        # 3️⃣ Insert campaign into table
-        result = (
-            supabase
-            .schema("public")  # change schema if needed
-            .table("campaigns")
-            .insert(campaign_data)
-            .execute()
-        )
+        # 2️⃣ Insert into campaigns table
+        result = supabase.table("campaigns").insert(campaign_data).execute()
+
+        if not result.data or len(result.data) == 0:
+            raise HTTPException(status_code=500, detail="Failed to insert campaign")
 
         inserted_campaign = result.data[0]
 
-        # 4️⃣ Safety check
-        if inserted_campaign["user_id"] != user_id:
-            raise HTTPException(status_code=400, detail="User ID mismatch")
-
-        # 5️⃣ Insert activity log (reusable function)
+        # 3️⃣ Insert activity log
         activity_log = insert_activity_log(
             user_id=user_id,
-            campaign_id=campaign_id,
+            campaign_id=inserted_campaign["id"],  # use the database-generated UUID
             action="Started lead scraping",
             metadata=campaign_data
         )
 
-        # 6️⃣ Return response
+        # 4️⃣ Return response
         return {
-            "user_id": activity_log["user_id"],
-            "campaign_id": activity_log["campaign_id"],
-            "action": activity_log["action"],
-            "created_at": activity_log["created_at"]
+            "campaign": inserted_campaign,
+            "activity_log": activity_log
         }
 
     except Exception as e:

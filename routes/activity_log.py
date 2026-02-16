@@ -22,13 +22,4 @@ def insert_activity_log(user_id: str, campaign_id: str, action: str, metadata: d
         .insert(activity_data) \
         .execute()
 
-    result = (
-        supabase.schema("analytics")
-        .table("activity_logs_view")
-        .select("*")
-        .eq("id", activity_id)
-        .single()
-        .execute()
-    )
-
-    return result.data
+    return activity_data

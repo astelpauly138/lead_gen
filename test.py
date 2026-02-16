@@ -96,46 +96,46 @@ scraped_data = [
   }
 ]
 
-# for lead in scraped_data:
-#     lead_row = {
-#         "id": str(uuid.uuid4()),
-#         "campaign_id": CAMPAIGN_ID,
-#         "user_id": USER_ID,
-#         "name": lead["Employee Name"],
-#         "email": lead["Work Email"],
-#         "company": lead["Company"],
-#         "phone": lead["Work Mobile No."],
-#         "status": "pending",
-#         "quality_score": None,
-#         "last_contacted": None,
-#         "created_at": datetime.utcnow().isoformat(),
-#         "category": lead["Category"],
-#         "position": lead["Position"],
-#         "email_status": lead["Email Status"],
-#         "website": lead["Website"],
-#         "domain": lead["Domain"],
-#         "location": lead["Location"],
-#         "address": lead["Address"],
-#         "promotion_status": lead["Promotion Status"]
-#     }
-#     supabase.table("leads").insert(lead_row).execute()
-# print("Scraped leads inserted successfully.")
+for lead in scraped_data:
+    lead_row = {
+        "id": str(uuid.uuid4()),
+        "campaign_id": CAMPAIGN_ID,
+        "user_id": USER_ID,
+        "name": lead["Employee Name"],
+        "email": lead["Work Email"],
+        "company": lead["Company"],
+        "phone": lead["Work Mobile No."],
+        "status": "pending",
+        "quality_score": None,
+        "last_contacted": None,
+        "created_at": datetime.utcnow().isoformat(),
+        "category": lead["Category"],
+        "position": lead["Position"],
+        "email_status": lead["Email Status"],
+        "website": lead["Website"],
+        "domain": lead["Domain"],
+        "location": lead["Location"],
+        "address": lead["Address"],
+        "promotion_status": lead["Promotion Status"]
+    }
+    supabase.table("leads").insert(lead_row).execute()
+print("Scraped leads inserted successfully.")
 
 
 
-# 3️⃣ Insert activity log
-# activity_id = str(uuid.uuid4())
-# activity_log = {
-#     "id": activity_id,
-#     "campaign_id": CAMPAIGN_ID,
-#     "user_id": USER_ID,
-#     "action": "leads_scraped",
-#     # "description": f"{len(scraped_data)} leads scraped for campaign {campaign_id}",
-#     "metadata": {"leads": len(scraped_data)},
-#     "created_at": datetime.utcnow().isoformat()
-# }
-# supabase.table("activity_logs").insert(activity_log).execute()
-# print("Activity log inserted successfully.")
+3️⃣ Insert activity log
+activity_id = str(uuid.uuid4())
+activity_log = {
+    "id": activity_id,
+    "campaign_id": CAMPAIGN_ID,
+    "user_id": USER_ID,
+    "action": message, ,
+    # "description": f"{len(scraped_data)} leads scraped for campaign {campaign_id}",
+    "metadata": will be passed,
+    "created_at": datetime.utcnow().isoformat()
+}
+supabase.table("activity_logs").insert(activity_log).execute()
+print("Activity log inserted successfully.")
 
 
 # After approving the leads
@@ -154,65 +154,65 @@ leads = [
     {"lead_id": "c3f5f7d1-8848-4094-8a6b-48371a7ad437", "approved": True}
   ]
 
-# for lead in leads:
-#     supabase.table("leads") \
-#         .update({"status": "approved"}) \
-#         .eq("id", lead["lead_id"]) \
-#         .execute()
-# print("Leads approved successfully.")
+for lead in leads:
+    supabase.table("leads") \
+        .update({"status": "approved"}) \
+        .eq("id", lead["lead_id"]) \
+        .execute()
+print("Leads approved successfully.")
 
 
 
-# after updating leads table ,we are updating the activity table.
-# activity_log = {
-#     "id": str(uuid.uuid4()),
-#     "campaign_id": CAMPAIGN_ID,
-#     "user_id": USER_ID,
-#     "action": f"{len(leads)} leads approved",
-#     # "description": f"{len(leads)} leads approved",
-#     "metadata": {"leads": [lead["lead_id"] for lead in leads]},
-#     "created_at": datetime.utcnow().isoformat()
-# }
-# supabase.table("activity_logs").insert(activity_log).execute()
+after updating leads table ,we are updating the activity table.
+activity_log = {
+    "id": str(uuid.uuid4()),
+    "campaign_id": CAMPAIGN_ID,
+    "user_id": USER_ID,
+    "action": f"{len(leads)} leads approved",
+    # "description": f"{len(leads)} leads approved",
+    "metadata": {"leads": [lead["lead_id"] for lead in leads]},
+    "created_at": datetime.utcnow().isoformat()
+}
+supabase.table("activity_logs").insert(activity_log).execute()
 
 
 
-# updating the leads status to sent after sending the email campaign.
-# for lead in leads:
-#     supabase.table("leads") \
-#         .update({"status": "sent", "last_contacted": datetime.utcnow().isoformat()}) \
-#         .eq("id", lead["lead_id"]) \
-#         .execute()
-# # expression approve ahnon koode check cheyanm
-# print("Leads status updated to sent successfully.")
+updating the leads status to sent after sending the email campaign.
+for lead in leads:
+    supabase.table("leads") \
+        .update({"status": "sent", "last_contacted": datetime.utcnow().isoformat()}) \
+        .eq("id", lead["lead_id"]) \
+        .execute()
+# expression approve ahnon koode check cheyanm
+print("Leads status updated to sent successfully.")
 
 
-# After sending each email, record an entry in email_events:
-# for lead in leads:
-#     email_event = {
-#         "id": str(uuid.uuid4()),
-#         "user_id": USER_ID,
-#         "campaign_id": CAMPAIGN_ID,
-#         "lead_id": lead["lead_id"],
-#         "event_type": "sent",
-#         "created_at": datetime.utcnow().isoformat()
-#     }
-#     supabase.table("email_events").insert(email_event).execute()
+After sending each email, record an entry in email_events:
+for lead in leads:
+    email_event = {
+        "id": str(uuid.uuid4()),
+        "user_id": USER_ID,
+        "campaign_id": CAMPAIGN_ID,
+        "lead_id": lead["lead_id"],
+        "event_type": "sent",
+        "created_at": datetime.utcnow().isoformat()
+    }
+    supabase.table("email_events").insert(email_event).execute()
 
 
 # Return Response to Frontend
 
 # Return JSON like:
 
-# {
-#   "user_id": "7df7b091-6007-41a1-b08c-11826f8baca3",
-#   "campaign_id": "xxxx-uuid",
-#   "leads": [
-#     {"lead_id": "aaa-uuid-111", "approved": true, "status": "sent"},
-#     {"lead_id": "bbb-uuid-222", "approved": true, "status": "sent"}
-#   ],
-#   "message": "Emails sent and leads updated successfully"
-# }
+{
+  "user_id": "7df7b091-6007-41a1-b08c-11826f8baca3",
+  "campaign_id": "xxxx-uuid",
+  "leads": [
+    {"lead_id": "aaa-uuid-111", "approved": true, "status": "sent"},
+    {"lead_id": "bbb-uuid-222", "approved": true, "status": "sent"}
+  ],
+  "message": "Emails sent and leads updated successfully"
+}
 
 
 # This is exactly how frontend knows which leads were approved and sent.
